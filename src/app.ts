@@ -17,7 +17,7 @@ import result from './utils/result'
   const app = express()
   app.use(cors({
     origin: (origin, cb) => {
-      const whitelist = ['http://172.23.105.100:3000']
+      const whitelist = ['http://127.0.0.1:3000']
       const allowed = whitelist.indexOf(origin || 'abracadabra') !== -1
       if (allowed)
         cb(null, true)
@@ -30,7 +30,7 @@ import result from './utils/result'
   // Logger & Verify JWT
   app.use(async (req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
-    if (!req.url.includes('/user/login') && !(await jwt.verify(req.headers.authorization?.split(' ')[1] || ''))) 
+    if (!req.url.includes('/user/login') && !req.url.includes('/info') && !(await jwt.verify(req.headers.authorization?.split(' ')[1] || ''))) 
       result.unauthorized(res)
     else
       next()
