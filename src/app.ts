@@ -5,6 +5,7 @@ import dbo from './db/conn'
 import router from './routes'
 import express from 'express'
 import jwt from './utils/jwt'
+import urlencode from 'urlencode'
 import result from './utils/result'
 import { createReadStream } from 'fs'
 
@@ -32,17 +33,24 @@ import { createReadStream } from 'fs'
   // Logger & Static images access
   app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
-    if (req.originalUrl.endsWith('.jpeg') || req.originalUrl.endsWith('.jpg') || req.originalUrl.endsWith('.png')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000')
-      const cs = createReadStream(path.resolve(req.originalUrl.replace(/v[0-9]+/, 'upload').substring(1)))
-      cs.on('data', (chunk) => {
-        res.write(chunk)
-      })
-      
-      cs.on('close', () => {
-        res.status(200)
+    const originalUrl = urlencode.decode(req.originalUrl, 'gbk')
+    if (originalUrl.endsWith('.jpeg') || originalUrl.endsWith('.jpg') || originalUrl.endsWith('.png')) {
+      try {
+        res.setHeader('Cache-Control', 'public, max-age=31536000')
+        const cs = createReadStream(path.resolve(originalUrl.replace(/v[0-9]+/, 'upload').substring(1)))
+        cs.on('data', (chunk) => {
+          res.write(chunk)
+        })
+        
+        cs.on('close', () => {
+          res.status(200)
+          res.end()
+        })
+      }catch(e) {
+        console.error(e)
+        res.status(404)
         res.end()
-      })
+      }
     } else {
       next()
     }

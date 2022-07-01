@@ -6,6 +6,7 @@ specifiers:
   '@types/jsonwebtoken': ^8.5.8
   '@types/multer': ^1.4.7
   '@types/node': ^18.0.0
+  '@types/urlencode': ^1.1.2
   cors: ^2.8.5
   dotenv: ^16.0.1
   express: ^4.18.1
@@ -14,6 +15,7 @@ specifiers:
   multer: 1.4.5-lts.1
   ts-node-dev: ^2.0.0
   typescript: ^4.7.4
+  urlencode: ^1.1.0
 
 dependencies:
   cors: 2.8.5
@@ -22,6 +24,7 @@ dependencies:
   jsonwebtoken: 8.5.1
   mongodb: 4.7.0
   multer: 1.4.5-lts.1
+  urlencode: 1.1.0
 
 devDependencies:
   '@types/cors': 2.8.12
@@ -29,6 +32,7 @@ devDependencies:
   '@types/jsonwebtoken': 8.5.8
   '@types/multer': 1.4.7
   '@types/node': 18.0.0
+  '@types/urlencode': 1.1.2
   ts-node-dev: 2.0.0_qiyc72axg2v44xl4yovan2v55u
   typescript: 4.7.4
 
@@ -147,6 +151,10 @@ packages:
 
   /@types/strip-json-comments/0.0.30:
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
+    dev: true
+
+  /@types/urlencode/1.1.2:
+    resolution: {integrity: sha512-4Gqya3/CmZ280CA6DvBnHmnq/vfgIqXJvzUC2S7a8kxmv/gbmt0uhJbx6m7ypWJvNn9n8DKWj5LD8wFpSxeQuA==}
     dev: true
 
   /@types/webidl-conversions/6.1.1:
@@ -1154,6 +1162,12 @@ packages:
   /unpipe/1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /urlencode/1.1.0:
+    resolution: {integrity: sha512-OOAOh9owHXr/rCN1tteSnYwIvsrGHamSz0hafMhmQa7RcS4+Ets6/2iVClVGjt9jkDW84UqoMw/Gmpc7QolX6A==}
+    dependencies:
+      iconv-lite: 0.4.24
     dev: false
 
   /util-deprecate/1.0.2:

@@ -1,6 +1,7 @@
 import dbo from '../db/conn'
 import express from 'express'
 import result from '../utils/result'
+import controller from '../controller'
 
 const router = express.Router()
 
@@ -67,13 +68,14 @@ router.put('/', async (req, res) => {
 })
 
 router.post('/push', (_req, res) => {
+  controller.push()
   result.succ({ status: true }, res)
 })
 
 async function updateOne(filename: string, content: string) {
   const resp = await dbo.getDb().collection('operations').findOne({ filename })
   if (resp)
-    await dbo.getDb().collection('operations').updateOne({ filename }, { $set: { content } })
+    await dbo.getDb().collection('operations').updateOne({ filename }, { $set: { type: 'update', content } })
   else
     await dbo.getDb().collection('operations').insertOne({ type: 'update', filename, content })
 }
@@ -81,7 +83,7 @@ async function updateOne(filename: string, content: string) {
 async function deleteOne(filename: string) {
   const resp = await dbo.getDb().collection('operations').findOne({ filename })
   if (resp)
-    await dbo.getDb().collection('operations').deleteOne({ filename })
+    await dbo.getDb().collection('operations').updateOne({ filename }, { $set: { type: 'delete' } })
   else
     await dbo.getDb().collection('operations').insertOne({ type: 'delete', filename, content: '' })
 }

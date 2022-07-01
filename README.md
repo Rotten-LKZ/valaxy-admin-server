@@ -24,6 +24,10 @@ pnpm i
 > MANAGER_USERNAME=username for logging in admin e.g. `admin`<br/>
 > MANAGER_PASSWORD=password for logging in admin e.g. `admin`<br/>
 > MANAGER_SECRET_KEY=secret key for generating JWT<br/>
+> 
+> BASE_URL=base url, it will be spliced with the image address (`Required "/"`) e.g. http://172.23.107.93:3011/v1/<br/>
+> REDIRECT_URL=redirect after a client is requesting a picture (If this option is `undefined`, it will response image immediately. `Required "/"`) e.g. `http://127.0.0.1:6543/`<br/>
+
 
 3. Create Valaxy under `template` and use `git` to push it to github *(Remember to use `npm` and `git` env is required)*
 
@@ -36,3 +40,7 @@ pnpm i
 ```bash
 pnpm dev
 ```
+
+## Notice
+
+1. Api `v1/image` with `POST` will delay inserting image information into the database, which means that you can't read all image information from the database at the first time, especially uploading too many images at one time.

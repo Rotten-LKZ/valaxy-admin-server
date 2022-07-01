@@ -2,13 +2,17 @@ import path from 'path'
 import multer from 'multer'
 import dbo from '../db/conn'
 import express from 'express'
+import file from '../utils/file'
+import number from '../utils/number'
 import result from '../utils/result'
-import { rename } from 'fs/promises'
-import { existsSync, mkdirSync } from 'fs'
+import { rename, rm } from 'fs/promises'
+import { ObjectId } from 'mongodb'
 
 // 需要斜杠
 const router = express.Router()
 const upload = multer({ dest: 'upload/' })
+const { addZero } = number
+const { extensionToLowerCase, mkdirsSync } = file
 
 interface File {
   fieldname: string
@@ -32,9 +36,10 @@ router.post('/', upload.array('pictures'), async (req, res) => {
       const savePath = path.resolve('upload', relativePath)
       mkdirsSync(savePath)
       for (const picture of pics) {
-        await rename(path.resolve(picture.path), path.resolve(savePath, picture.originalname))
-        dbo.getDb().collection('images').insertOne({ filename: picture.originalname, path: `${relativePath}/${picture.originalname}` })
-        urls.push(`${process.env.BASE_URL}${relativePath}/${picture.originalname}`)
+        const filename = extensionToLowerCase(picture.originalname)
+        await rename(path.resolve(picture.path), path.resolve(savePath, filename))
+        updateFile(filename, `${relativePath}/${filename}`, now.getTime())
+        urls.push(`${process.env.BASE_URL}${relativePath}/${filename}`)
       }
       result.succ({ status: true, urls }, res)
     } catch (e) {
@@ -46,15 +51,43 @@ router.post('/', upload.array('pictures'), async (req, res) => {
   }
 })
 
-function addZero(num: number): string {
-  return num < 10 ? `0${num}` : num.toString()
-}
-
-function mkdirsSync(dirname: string) {
-  if (!existsSync(dirname)) {
-    mkdirsSync(path.dirname(dirname))
-    mkdirSync(dirname)
+router.get('/', async (_req, res) => {
+  try {
+    const resp = await dbo.getDb().collection('images').find({}).toArray()
+    result.succ({ status: true, images: resp.map((cur) => ({ id: cur._id.toHexString(), filename: cur.filename, url: `${process.env.BASE_URL}${cur.path}` })) }, res)
+  } catch (e) {
+    console.error(e)
+    result.badRequest(res)
   }
+})
+
+router.delete('/', async (req, res) => {
+  const { id } = req.body
+  if (id) {
+    try {
+      const resp = await dbo.getDb().collection('images').findOne({ _id: ObjectId.createFromHexString(id) })
+      if (resp) {
+        await rm(path.resolve('upload', resp.path))
+        await dbo.getDb().collection('images').deleteOne({ _id: ObjectId.createFromHexString(id) })
+        result.succ({ status: true }, res)
+      } else {
+        result.badRequest(res)
+      }
+    } catch (e) {
+      console.error(e)
+      result.badRequest(res)
+    }
+  } else {
+    result.badRequest(res)
+  }
+})
+
+async function updateFile(filename: string, path: string, updatedAt: number) {
+  const resp = await dbo.getDb().collection('images').findOne({ path })
+  if (resp)
+    dbo.getDb().collection('images').updateOne({ path, updatedAt }, { $set: { filename } })
+  else
+    dbo.getDb().collection('images').insertOne({ filename, path, updatedAt })
 }
 
 export default router
