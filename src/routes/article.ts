@@ -1,11 +1,10 @@
 import dbo from '../db/conn'
 import express from 'express'
 import result from '../utils/result'
-import controller from '../controller'
 
 const router = express.Router()
 
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
   let resp: any
   try {
     resp = await dbo.getDb().collection('articles').find({}).toArray()
@@ -22,8 +21,8 @@ router.post('/', async (req, res) => {
     let resp: any
     try {
       resp = await dbo.getDb().collection('articles').insertOne({ title, filename, content })
+      updateOne(filename, content)
       result.succ({ status: resp.acknowledged }, res)
-      controller.updateArticle(filename, content)
     } catch (e) {
       console.error(e)
       result.badRequest(res)
@@ -39,8 +38,8 @@ router.delete('/', async (req, res) => {
     let resp: any
     try {
       resp = await dbo.getDb().collection('articles').deleteOne({ filename })
+      deleteOne(filename)
       result.succ({ status: resp.acknowledged }, res)
-      controller.removeArticle(filename)
     } catch (e) {
       console.error(e)
       result.badRequest(res)
@@ -56,8 +55,8 @@ router.put('/', async (req, res) => {
     let resp: any
     try {
       resp = await dbo.getDb().collection('articles').updateOne({ filename }, { $set: { title, content } })
+      updateOne(filename, content)
       result.succ({ status: resp.acknowledged }, res)
-      controller.updateArticle(filename, content)
     } catch (e) {
       console.error(e)
       result.badRequest(res)
@@ -66,5 +65,25 @@ router.put('/', async (req, res) => {
     result.badRequest(res)
   }
 })
+
+router.post('/push', (_req, res) => {
+  result.succ({ status: true }, res)
+})
+
+async function updateOne(filename: string, content: string) {
+  const resp = await dbo.getDb().collection('operations').findOne({ filename })
+  if (resp)
+    await dbo.getDb().collection('operations').updateOne({ filename }, { $set: { content } })
+  else
+    await dbo.getDb().collection('operations').insertOne({ type: 'update', filename, content })
+}
+
+async function deleteOne(filename: string) {
+  const resp = await dbo.getDb().collection('operations').findOne({ filename })
+  if (resp)
+    await dbo.getDb().collection('operations').deleteOne({ filename })
+  else
+    await dbo.getDb().collection('operations').insertOne({ type: 'delete', filename, content: '' })
+}
 
 export default router

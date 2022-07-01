@@ -1,10 +1,12 @@
 import 'dotenv/config'
 import cors from 'cors'
+import path from 'path'
 import dbo from './db/conn'
 import router from './routes'
 import express from 'express'
 import jwt from './utils/jwt'
 import result from './utils/result'
+import { createReadStream } from 'fs'
 
 
 ;(async () => {
@@ -17,7 +19,7 @@ import result from './utils/result'
   const app = express()
   app.use(cors({
     origin: (origin, cb) => {
-      const whitelist = ['http://127.0.0.1:3000']
+      const whitelist = ['http://127.0.0.1:3000', 'abracadabra']
       const allowed = whitelist.indexOf(origin || 'abracadabra') !== -1
       if (allowed)
         cb(null, true)
@@ -27,9 +29,26 @@ import result from './utils/result'
     }
   }))
   app.use(express.json())
-  // Logger & Verify JWT
-  app.use(async (req, res, next) => {
+  // Logger & Static images access
+  app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+    if (req.originalUrl.endsWith('.jpeg') || req.originalUrl.endsWith('.jpg') || req.originalUrl.endsWith('.png')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000')
+      const cs = createReadStream(path.resolve(req.originalUrl.replace(/v[0-9]+/, 'upload').substring(1)))
+      cs.on('data', (chunk) => {
+        res.write(chunk)
+      })
+      
+      cs.on('close', () => {
+        res.status(200)
+        res.end()
+      })
+    } else {
+      next()
+    }
+  })
+  // Verify JWT
+  app.use(async (req, res, next) => {
     if (!req.url.includes('/user/login') && !req.url.includes('/info') && !(await jwt.verify(req.headers.authorization?.split(' ')[1] || ''))) 
       result.unauthorized(res)
     else
