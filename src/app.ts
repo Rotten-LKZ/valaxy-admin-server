@@ -10,7 +10,6 @@ import result from './utils/result'
 import { createReadStream } from 'fs'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 
-
 ;(async () => {
   const dbConn = await dbo.connectToServer()
   if (dbConn === false) {
@@ -21,7 +20,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   const app = express()
   app.use(cors({
     origin: (origin, cb) => {
-      const whitelist = ['http://127.0.0.1:3000', 'abracadabra']
+      const whitelist = JSON.parse(process.env.WHITE_LIST || '[]')
       const allowed = whitelist.indexOf(origin || 'abracadabra') !== -1
       if (allowed)
         cb(null, true)
@@ -73,5 +72,3 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
     console.log('Server is listening on port 3011')
   })
 })()
-
-
