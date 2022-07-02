@@ -38,6 +38,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   // Logger
   app.use((req, _res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+    next()
   })
 
   // Static images access
