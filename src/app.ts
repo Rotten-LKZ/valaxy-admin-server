@@ -33,7 +33,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   app.use(express.json())
   // Logger & Static images access
   if (process.env.REDIRECT_URL) {
-    app.use('/v1/[0-9]{4}/[0-9]{2}/[0-9]{2}/', createProxyMiddleware({ target: process.env.REDIRECT_URL, changeOrigin: false }))
+    app.use('/[0-9]{4}/[0-9]{2}/[0-9]{2}/', createProxyMiddleware({ target: process.env.REDIRECT_URL, changeOrigin: false }))
   } else {
     app.use((req, res, next) => {
       console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
