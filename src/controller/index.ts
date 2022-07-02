@@ -13,9 +13,13 @@ async function push() {
       else if (operation.type === 'delete') await del(operation.filename)
     }
     await dbo.getDb().collection('operations').deleteMany({})
-    execSync('git add .', { cwd: basePath })
-    execSync('git commit -m "chore: update"', { cwd: basePath })
-    execSync('git push -f', { cwd: basePath })
+    if (process.env.COMMAND) {
+      execSync(process.env.COMMAND, { cwd: basePath })
+    } else {
+      execSync('git add .', { cwd: basePath })
+      execSync('git commit -m "chore: update"', { cwd: basePath })
+      execSync('git push -f', { cwd: basePath })
+    }
   } catch (e) {
     console.error(e)
   }
