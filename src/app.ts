@@ -34,12 +34,17 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   }
   
   app.use(express.json())
-  // Logger & Static images access
+
+  // Logger
+  app.use((req, _res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+  })
+
+  // Static images access
   if (process.env.REDIRECT_URL) {
     app.use('/[0-9]{4}/[0-9]{2}/[0-9]{2}/', createProxyMiddleware({ target: process.env.REDIRECT_URL, changeOrigin: false }))
   } else {
     app.use((req, res, next) => {
-      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
       const originalUrl = urlencode.decode(req.originalUrl, 'gbk')
       if (/(\.jpeg|\.jpg|\.png)$/.test(originalUrl)) {
         try {
@@ -63,6 +68,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
       }
     })
   }
+
   // Verify JWT
   app.use(async (req, res, next) => {
     if (!req.url.includes('/user/login') && !req.url.includes('/info') && !(await jwt.verify(req.headers.authorization?.split(' ')[1] || ''))) 
@@ -70,6 +76,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
     else
       next()
   })
+
   app.use('/v1', router)
 
   app.listen(3011, () => {
