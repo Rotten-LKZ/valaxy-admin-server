@@ -21,7 +21,9 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   app.use(cors({
     origin: (origin, cb) => {
       const whitelist = JSON.parse(process.env.WHITE_LIST || '[]')
-      const allowed = whitelist.indexOf(origin || 'abracadabra') !== -1
+      let allowed: boolean
+      if (process.env.WHITE_LIST) allowed = whitelist.includes(origin)
+      else allowed = true
       if (allowed)
         cb(null, true)
       else

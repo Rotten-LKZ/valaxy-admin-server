@@ -28,7 +28,7 @@ pnpm i
 > BASE_URL=base url, it will be spliced with the image address (`Required "/"`) e.g. http://172.23.107.93:3011/v1/<br/>
 > REDIRECT_URL=redirect after a client is requesting a picture (If this option is `undefined`, it will response image immediately. `Not required "/"`) e.g. `http://127.0.0.1:6543`<br/>
 >
-> WHITE_LIST=cors e.g. `["123", "123"]`<br/>
+> WHITE_LIST=cors e.g. `["123", "123"]` (If this option is `undefined`, it will allow all requests)<br/>
 
 
 3. Create Valaxy under `template` and use `git` to push it to github *(Remember to use `npm` and `git` env is required)*
