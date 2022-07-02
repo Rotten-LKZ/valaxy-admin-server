@@ -18,19 +18,21 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
   }
 
   const app = express()
-  app.use(cors({
-    origin: (origin, cb) => {
-      const whitelist = JSON.parse(process.env.WHITE_LIST || '[]')
-      let allowed: boolean
-      if (process.env.WHITE_LIST) allowed = whitelist.includes(origin)
-      else allowed = true
-      if (allowed)
-        cb(null, true)
-      else
-        cb(null)
-      console.log(`[${new Date().toISOString()}] CORS ${allowed ? '' : 'DIS'}ALLOWED ${origin}`)
-    }
-  }))
+
+  if (process.env.WHITE_LIST) {
+    app.use(cors({
+      origin: (origin, cb) => {
+        const whitelist = JSON.parse(process.env.WHITE_LIST || '[]')
+        const allowed = whitelist.includes(origin)
+        if (whitelist.includes(origin))
+          cb(null, true)
+        else
+          cb(null)
+        console.log(`[${new Date().toISOString()}] CORS ${allowed ? '' : 'DIS'}ALLOWED ${origin}`)
+      }
+    }))
+  }
+  
   app.use(express.json())
   // Logger & Static images access
   if (process.env.REDIRECT_URL) {
