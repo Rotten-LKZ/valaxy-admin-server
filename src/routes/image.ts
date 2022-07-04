@@ -54,7 +54,7 @@ router.post('/', upload.array('pictures'), async (req, res) => {
 router.get('/', async (_req, res) => {
   try {
     const resp = await dbo.getDb().collection('images').find({}).toArray()
-    result.succ({ status: true, images: resp.map((cur) => ({ id: cur._id.toHexString(), filename: cur.filename, url: `${process.env.BASE_URL}${cur.path}` })) }, res)
+    result.succ({ status: true, images: resp.map((cur) => ({ id: cur._id.toHexString(), filename: cur.filename, url: `${process.env.BASE_URL}${cur.path}`, updatedAt: cur.updatedAt })) }, res)
   } catch (e) {
     console.error(e)
     result.badRequest(res)
